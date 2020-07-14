@@ -456,8 +456,8 @@ func (xc *Xchain) GenRealTxOnly(response *pb.PreExecWithSelectUTXOResponse, hdPu
 	//		return nil, fmt.Errorf("GenRealTx GenerateTxOutput err: %v", err)
 	//	}
 
-	//	utxolist := []*pb.Utxo{}
-	//	totalSelected := big.NewInt(0)
+	// utxolist := []*pb.Utxo{}
+	// totalSelected := big.NewInt(0)
 	//	for index, txOutput := range complianceCheckTx.TxOutputs {
 	//		if string(txOutput.ToAddr) == xc.Initiator {
 	//			utxo := &pb.Utxo{
@@ -473,11 +473,18 @@ func (xc *Xchain) GenRealTxOnly(response *pb.PreExecWithSelectUTXOResponse, hdPu
 	//		}
 	//	}
 
+	m_utxolist := []*pb.Utxo{}
+	m_totalSelected := big.NewInt(0).String()
+	if response.UtxoOutput != nil {
+		m_utxolist = response.UtxoOutput.UtxoList
+		m_totalSelected = response.UtxoOutput.TotalSelected
+	}
+
 	utxoOutput := &pb.UtxoOutput{
-		//		UtxoList: utxolist,
-		//		TotalSelected: totalSelected.String(),
-		UtxoList:      response.UtxoOutput.UtxoList,
-		TotalSelected: response.UtxoOutput.TotalSelected,
+		UtxoList:      m_utxolist,
+		TotalSelected: m_totalSelected,
+		// UtxoList:      response.UtxoOutput.UtxoList,
+		// TotalSelected: response.UtxoOutput.TotalSelected,
 	}
 	totalNeed := big.NewInt(0)
 	amount, ok := big.NewInt(0).SetString(xc.TotalToAmount, 10)
@@ -491,7 +498,7 @@ func (xc *Xchain) GenRealTxOnly(response *pb.PreExecWithSelectUTXOResponse, hdPu
 	amount.Add(amount, fee)
 	totalNeed.Add(totalNeed, amount)
 
-	totalSelected, ok := big.NewInt(0).SetString(response.UtxoOutput.TotalSelected, 10)
+	totalSelected, ok := big.NewInt(0).SetString(m_totalSelected, 10)
 	if !ok {
 		return nil, common.ErrInvalidAmount
 	}
